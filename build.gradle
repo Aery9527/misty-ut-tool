@@ -1,0 +1,16 @@
+plugins {
+    id 'java-library'
+    id 'idea'
+}
+
+group 'org.misty'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnlyApi group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.4.3'
+}
+
