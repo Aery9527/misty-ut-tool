@@ -8,6 +8,7 @@ import java.util.function.BiConsumer;
 
 class StringSplitterTest {
 
+    @SuppressWarnings("rawtypes")
     @Test
     void modify_converter() {
         Class<String> targetType = String.class;
