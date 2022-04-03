@@ -106,7 +106,7 @@ public class StringSplitter extends SimpleArgumentConverter {
     }
 
     private List<String> convertToList(String source) {
-        List<String> result = new ArrayList<>();
+        List<String> result = new ArrayList<>(4);
         splitWith(source, text -> result.add(handleSpecifiedText(text)));
         return result;
     }
