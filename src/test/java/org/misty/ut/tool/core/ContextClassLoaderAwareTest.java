@@ -1,7 +1,8 @@
-package org.misty.ut.tool;
+package org.misty.ut.tool.core;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.misty.ut.tool.core.ContextClassLoaderAware;
 import org.mockito.Mockito;
 
 import java.net.URL;

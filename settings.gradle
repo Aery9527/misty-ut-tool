@@ -1,2 +1,2 @@
 rootProject.name = 'misty-ut-tool'
-
+include 'misty-expose'

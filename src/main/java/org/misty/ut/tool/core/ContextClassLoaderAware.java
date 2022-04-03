@@ -1,4 +1,4 @@
-package org.misty.ut.tool;
+package org.misty.ut.tool.core;
 
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;

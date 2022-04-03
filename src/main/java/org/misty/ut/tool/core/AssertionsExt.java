@@ -1,4 +1,4 @@
-package org.misty.ut.tool;
+package org.misty.ut.tool.core;
 
 import org.assertj.core.api.AbstractThrowableAssert;
 import org.assertj.core.api.Assertions;
