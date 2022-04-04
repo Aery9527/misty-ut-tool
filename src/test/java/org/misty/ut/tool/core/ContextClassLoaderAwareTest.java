@@ -17,7 +17,7 @@ class ContextClassLoaderAwareTest {
     }
 
     @Test
-    void mock() {
+    void test() {
         ContextClassLoaderAware aware = new ContextClassLoaderAware();
 
         URLClassLoader targetClassLoader = new URLClassLoader(new URL[0], ClassLoader.getSystemClassLoader());
