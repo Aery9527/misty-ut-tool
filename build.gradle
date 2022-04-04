@@ -1,9 +1,9 @@
 buildscript {
     dependencies {
         classpath files(
-                "misty-expose/out/production/classes",
-                "out/production/classes",
+                "misty-expose/build/classes/java/main",
                 "misty-expose/for-gradle-init",
+                "build/classes/java/main",
                 "for-gradle-init"
         )
     }
@@ -14,12 +14,13 @@ plugins {
     id 'idea'
 }
 
-group 'org.misty'
-version '1.0-SNAPSHOT'
+import org.misty.expose.core.MistyExpose
+import org.misty.ut.tool.MistyUtToolExposer
 
-repositories {
-    mavenCentral()
-}
+group 'org.misty'
+MistyExpose mistyExpose = new MistyUtToolExposer() as MistyExpose
+archivesBaseName = mistyExpose.getName()
+version = mistyExpose.getVersion()
 
 ext {
     VERSION_JAVA = '1.8'
@@ -27,6 +28,10 @@ ext {
 
 sourceCompatibility = project.VERSION_JAVA
 targetCompatibility = project.VERSION_JAVA
+
+repositories {
+    mavenCentral()
+}
 
 dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.6.6'
