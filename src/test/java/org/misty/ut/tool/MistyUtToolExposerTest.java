@@ -7,10 +7,7 @@ import org.misty.expose.core.MistyExposeDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 class MistyUtToolExposerTest {
 
@@ -18,14 +15,10 @@ class MistyUtToolExposerTest {
 
     @Test
     void spi() {
-//        List<MistyExpose> list = MistyExposeDetector.findBySPI();
-//        list.forEach(mistyExpose -> this.logger.info(mistyExpose.toString()));
-//
-//        Assertions.assertThat(list).contains(new MistyUtToolExposer());
+        List<MistyExpose> list = MistyExposeDetector.findBySPI();
+        list.forEach(mistyExpose -> this.logger.info(mistyExpose.toString()));
 
-
-        String a = "org.misty.ut.tool.MistyUtToolExposer";
-        System.out.println(Arrays.stream(a.split("\\.")).collect(Collectors.joining(File.separator)));
+        Assertions.assertThat(list).contains(new MistyUtToolExposer());
     }
 
 }

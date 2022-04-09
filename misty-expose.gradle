@@ -1,4 +1,4 @@
-import java.nio.file.Paths
+import java.lang.reflect.Method
 import java.util.function.BiConsumer
 import java.util.function.Consumer
 import java.util.stream.Collectors
@@ -9,26 +9,33 @@ final String banner = String.format(bannerFormat, title)
 final String sourceAnchor = "src" + File.separator + "main" + File.separator + "java"
 
 String exposer = misty.exposer
+String targetName
 String javaHomePath
 String tmpPath
 String exposeSourcePath
 String compileSource
 List<String> commandList = new ArrayList<>()
 
+boolean debug = Boolean.parseBoolean(project.ext.get("misty").debug)
+ext.mistyPrinter = debug ? { line -> System.out.println(line) } : { line -> }
+
 ext.mistyPrepare = { ->
+    String sourceRootPath = System.getProperties().get("user.dir")
+    targetName = sourceRootPath.substring(sourceRootPath.lastIndexOf(File.separator) + 1, sourceRootPath.length())
+
     javaHomePath = System.getProperties().get("java.home")
     javaHomePath = javaHomePath.substring(0, javaHomePath.lastIndexOf(File.separator))
     javaHomePath += File.separator + "bin" + File.separator
 
     tmpPath = System.getenv().get("TMP") + File.separator + title + File.separator
-    tmpPath += Long.toString(System.currentTimeMillis(), Character.MAX_RADIX)
-    new File(tmpPath).mkdirs()
+    tmpPath += targetName
+    File tmpPathFile = new File(tmpPath)
+    tmpPathFile.deleteOnExit()
+    tmpPathFile.mkdirs()
 
-    String sourceRootPath = System.getProperties().get("user.dir") + File.separator
+    exposeSourcePath = sourceRootPath + File.separator + title + File.separator + sourceAnchor
 
-    exposeSourcePath = sourceRootPath + title + File.separator + sourceAnchor
-
-    compileSource = sourceRootPath + sourceAnchor + File.separator
+    compileSource = sourceRootPath + File.separator + sourceAnchor + File.separator
     compileSource += Arrays.stream(exposer.split("\\.")).collect(Collectors.joining(File.separator)) + ".java"
 
     commandList.add(javaHomePath + "javac")
@@ -36,12 +43,13 @@ ext.mistyPrepare = { ->
     commandList.addAll(Arrays.asList("-cp", "\"" + exposeSourcePath + "\""))
     commandList.addAll("\"" + compileSource + "\"")
 
-    System.out.println("exposer           : " + exposer)
-    System.out.println("javaHomePath      : " + javaHomePath)
-    System.out.println("tmpPath           : " + tmpPath)
-    System.out.println("exposeSourcePath  : " + exposeSourcePath)
-    System.out.println("compileSource     : " + compileSource)
-    System.out.println("command           : " + commandList.stream().collect(Collectors.joining(" ")))
+    mistyPrinter("exposer           : " + exposer)
+    mistyPrinter("targetName        : " + targetName)
+    mistyPrinter("javaHomePath      : " + javaHomePath)
+    mistyPrinter("tmpPath           : " + tmpPath)
+    mistyPrinter("exposeSourcePath  : " + exposeSourcePath)
+    mistyPrinter("compileSource     : " + compileSource)
+    mistyPrinter("command           : " + commandList.stream().collect(Collectors.joining(" ")))
 }
 
 ext.mistyCompile = { ->
@@ -62,19 +70,26 @@ ext.mistyCompile = { ->
 
     readConsoles.accept(process.getInputStream(), System.out::println)
     readConsoles.accept(process.getErrorStream(), System.err::println)
+    process.waitFor()
 }
 
 String exposerName
 String exposerVersion
 
 ext.mistyRead = { ->
-//    tmpPath
     URLClassLoader cl = new URLClassLoader(new URL[]{new File(tmpPath).toURI().toURL()})
-    Arrays.stream(cl.getURLs()).forEach(System.out::println)
-    Class<?> exposerClass = cl.loadClass(exposer)
+    Class<?> targetExposerClass = cl.loadClass(exposer)
+    Class<?> mistyExposeClass = targetExposerClass.getSuperclass()
 
-    System.out.println("exposerName       : " + exposerName)
-    System.out.println("exposerVersion    : " + exposerVersion)
+    Method getNameMethod = mistyExposeClass.getDeclaredMethod("getName")
+    Method getVersionMethod = mistyExposeClass.getDeclaredMethod("getVersion")
+
+    Object exposerInstance = targetExposerClass.newInstance()
+    exposerName = getNameMethod.invoke(exposerInstance)
+    exposerVersion = getVersionMethod.invoke(exposerInstance)
+
+    System.out.println("archivesBaseName  : " + exposerName)
+    System.out.println("version           : " + exposerVersion)
 }
 
 try {
@@ -85,53 +100,6 @@ try {
 
     archivesBaseName = exposerName
     version = exposerVersion
-
-//    URLClassLoader sysCl = ClassLoader.getSystemClassLoader()
-//    System.out.println(sysCl)
-//    Arrays.stream(sysCl.getURLs()).forEach(System.out::println)
-//
-//    RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
-//    List<String> arguments = runtimeMxBean.getInputArguments();
-//    System.out.println(arguments)
-//
-//    System.out.println("-----------------------------")
-//    Map<String, String> env = System.getenv();
-//    env.entrySet().forEach(System.out::println);
-//
-//    System.out.println("-----------------------------")
-//    Properties properties = System.getProperties();
-//    Map<String, String> result = new TreeMap<>();
-//
-//    Enumeration<?> names = properties.propertyNames();
-//    while (names.hasMoreElements()) {
-//        String key = (String) names.nextElement();
-//        String val = properties.getProperty(key);
-//        result.put(key, val);
-//    }
-//    result.entrySet().forEach(System.out::println);
-
-//    String tmpPath = System.getenv().get("TMP") + File.separator + title + File.separator
-//    tmpPath += Long.toString(System.currentTimeMillis(), Character.MAX_RADIX)
-//
-//    String javaHomePath = System.getProperties().get("java.home")
-//    javaHomePath = javaHomePath.substring(0, javaHomePath.lastIndexOf(File.separator))
-//    javaHomePath += File.separator + "bin" + File.separator
-//
-//    String compileRootPath = System.getProperties().get("user.dir") + File.separator
-//    String compileSource = compileRootPath + sourceAnchor
-//    String exposeSourcePath = compileRootPath + title + File.separator + sourceAnchor
-//
-//    System.out.println("tmpPath          : " + tmpPath)
-//    System.out.println("javaHomePath     : " + javaHomePath)
-//    System.out.println("compileSource : " + compileSource)
-//    System.out.println("exposeSourcePath : " + exposeSourcePath)
-//    System.out.println("misty.exposer    : " + misty.exposer)
-//    Class clazz = ClassLoader.getSystemClassLoader().loadClass("${EXPOSER}")
-//    Method getName = clazz.getDeclaredMethod("getName")
-//    Method getVersion = clazz.getDeclaredMethod("getVersion")
-//    Object mistyExposer = clazz.newInstance()
-//
-
 
 } catch (Exception e) {
     e.printStackTrace()

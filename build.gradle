@@ -7,19 +7,12 @@ ext {
     VERSION_JAVA = '1.8'
     misty = [
         exposer : "org.misty.ut.tool.MistyUtToolExposer"
+//        , debug : "true"
     ]
 }
 
 group 'org.misty'
 apply from: 'misty-expose.gradle'
-
-//import org.misty.expose.core.MistyExpose
-//import org.misty.ut.tool.MistyUtToolExposer
-//
-//group 'org.misty'
-//MistyExpose mistyExpose = new MistyUtToolExposer() as MistyExpose
-//archivesBaseName = mistyExpose.getName()
-//version = mistyExpose.getVersion()
 
 sourceCompatibility = project.VERSION_JAVA
 targetCompatibility = project.VERSION_JAVA
